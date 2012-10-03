@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="blocks/online_users_map" VERSION="20070602603" COMMENT="XMLDB file for Moodle block/online_users_map">
+  <TABLES>
+    <TABLE NAME="block_online_users_map" COMMENT="Lat/Lng coordinates for users">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" ENUM="false" NEXT="userid"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="id" NEXT="lat"/>
+      	<FIELD NAME="lat" TYPE="float" LENGTH="15" NOTNULL="true" UNSIGNED="false" DEFAULT="0.0000000000" SEQUENCE="false" ENUM="false" DECIMALS="12" PREVIOUS="userid" NEXT="lng"/>
+      	<FIELD NAME="lng" TYPE="float" LENGTH="15" NOTNULL="true" UNSIGNED="false" DEFAULT="0.0000000000" SEQUENCE="false" ENUM="false" DECIMALS="12" PREVIOUS="lat" NEXT="city"/>
+      	<FIELD NAME="city" TYPE="char" LENGTH="20" NOTNULL="false" DEFAULT="" PREVIOUS="lng" NEXT="country" SEQUENCE="false"/>
+      	<FIELD NAME="country" TYPE="char" LENGTH="2" NOTNULL="false" DEFAULT="" PREVIOUS="city" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for block_online_users_map" NEXT="userid"/>
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="users" REFFIELDS="id" PREVIOUS="primary"/>
+      </KEYS>
+    </TABLE>
+  </TABLES>
+</XMLDB>
