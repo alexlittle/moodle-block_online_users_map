@@ -87,7 +87,7 @@ function loadMap(){
                 controls: [ new OpenLayers.Control.Navigation(), new OpenLayers.Control.ZoomPanel() ]
               });
  
- 	// new OpenLayers.Control.PanPanel() 
+ 	map.addControl(new OpenLayers.Control.Attribution());
     var layerMapnik = new OpenLayers.Layer.OSM.Mapnik("Mapnik");
  
     map.addLayers([layerMapnik]);

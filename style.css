@@ -5,6 +5,11 @@
     top: 6px;
 }
 
+
+.olControlAttribution {
+    bottom: 0em;
+}
+
 #block_online_users_osmmap {
 	height:150px;
 	width:100%;
