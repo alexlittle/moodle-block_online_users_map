@@ -118,7 +118,7 @@ function loadUsersCallback(jData){
 	if(!users){
 		return;
 	}
-	for (i=0; i<users.length; i++){
+	for (i=0; i < users.length; i++){
 		//create marker for each user
 		createMarker(users[i]);
 	}
