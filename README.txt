@@ -18,7 +18,6 @@ How to install:
 6. Finally you need to add the block to some courses/homepage - best bet is 
    probably add it as a sticky block.
 
-
 This block can either use OpenStreetMap or Google Maps for the map display - this 
 can be changed in the block admin settings. 
 
