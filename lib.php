@@ -67,13 +67,12 @@ function update_users_locations(){
         //get the coordinates:
         $response = getURLContent($CFG->block_online_users_map_geonamesurl,"/search?username=".$CFG->block_online_users_map_geonamesusername."&maxRows=1&q=".urlencode($user->city)."&country=".urlencode($user->country));
         
-        if($xml = simplexml_load_string($response)){
-            $boumc = null;
-            unset($boumc);
+        if($response != "" && $xml = simplexml_load_string($response)){
+            $boumc = new StdClass;
             if (isset($xml->geoname->lat)){
                 $boumc->userid = $user->id;
-                $boumc->lat = floatvar($xml->geoname->lat);
-                $boumc->lng = floatvar($xml->geoname->lng);
+                $boumc->lat = floatval($xml->geoname->lat);
+                $boumc->lng = floatval($xml->geoname->lng);
                 $boumc->city = $user->city;
                 $boumc->country = $user->country;
                 
@@ -86,21 +85,18 @@ function update_users_locations(){
                     $DB->insert_record("block_online_users_map",$boumc);
                 }
                 if ($CFG->block_online_users_map_debug){
-                    echo "location updated" ;  
+                    echo "\n\tlocation updated" ;  
                 }
             } else {
                if ($CFG->block_online_users_map_debug){
-                   echo "location not found in Geonames database" ;  
+                   echo "\n\tlocation not found in Geonames database" ;  
                } 
             }
         } else {
             if ($CFG->block_online_users_map_debug){
-                echo "location not found due to no or invalid response" ;  
+                echo "\n\tlocation not found due to no or invalid response" ;  
             }
         }
-     }
-     if ($CFG->block_online_users_map_debug){
-         echo "\n" ;  
      }
 }
 
@@ -129,7 +125,8 @@ function getURLContent($domain,$path){
 
     /* Attempt to connect to the proxy server to retrieve the remote page */
     if(!$socket = fsockopen($address, $port, $errno, $errstring, 20)){
-        die("Couldn't connect to host $address: $errno: $errstring\n");
+        echo "Couldn't connect to host $address: $errno: $errstring\n";
+        return "";
     }
 
     fwrite($socket, $message);
@@ -207,42 +204,4 @@ function getCurrentUserLocation(){
     return $coords;
 }
 
-/**
-* @param $objects object to turn into JSON
-* @param $name overall name of the JSON object
-* @param $callback name of the callback function
-* @return string of the JSON object
-*/
-
-function phpToJSON($objects,$name,$callback=''){
-	$str = '';
-	if ($callback != ''){
-		$str .= $callback.'(';
-	}
-	if ($objects){
-		$str .= '{"'.$name.'":[';
-		$okeys = array_keys($objects);
-		for ($i=0; $i<sizeof($okeys); $i++ ){
-			$myobj = $objects[$okeys[$i]];
-			$attr = get_object_vars($myobj);
-			$str .= '{';
-			$keys = array_keys($attr);
-			for($j=0;$j<sizeof($keys);$j++){
-				$str .= '"'. $keys[$j] .'":"'. $attr[$keys[$j]] .'"';
-				if ($j != (sizeof($keys)-1)){
-				$str .= ',';
-				}
-			}
-			$str .= '}';
-			if ($i != (sizeof($objects)-1)){
-			$str .= ',';
-			}
-		}
-		$str .= ']}';
-	}
-	if ($callback != ''){
-		$str .= ');';
-	}
-	return $str;
-}
 ?>

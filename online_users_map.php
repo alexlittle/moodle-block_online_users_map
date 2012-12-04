@@ -90,10 +90,7 @@ function loadUsersCallback(jData){
 	if(!jData){
 		return;
 	}
-	var users = jData.online;
-	if(!users){
-		return;
-	}
+	var users = jData;
 	for (i=0; i < users.length; i++){
 		createMarker(users[i]);
 	}

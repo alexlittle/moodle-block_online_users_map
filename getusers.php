@@ -138,6 +138,6 @@ if ($pusers = $DB->get_records_sql($SQLwithLL, array(),0, 50)) {   // We'll just
 }  
 
 header("Content-type: text/plain");
-echo phpToJSON($users,'online',$callback);
+echo $callback."(".json_encode($users).")";
 
 ?>
