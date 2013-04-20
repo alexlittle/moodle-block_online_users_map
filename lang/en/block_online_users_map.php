@@ -2,6 +2,11 @@
 
 $string['pluginname'] = 'Online Users Map';
 
+// permissions
+$string['online_users_map:addinstance'] = 'Add a new online users map block';
+$string['online_users_map:myaddinstance'] = 'Add a new online users map block to the My Moodle page';
+
+
 // config setting titles
 $string['centrelat'] = 'Initial latitude';
 $string['centrelng'] = 'Initial longitude';
