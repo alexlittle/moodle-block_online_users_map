@@ -8,11 +8,11 @@ include_once($CFG->dirroot.'/lib/datalib.php');
  * @return string HTML string to display google map
  */
  function get_html_googlemap(){
-    global $CFG;
+    global $CFG,$COURSE;
     $retStr = "<script src='https://maps.googleapis.com/maps/api/js?sensor=false' type='text/javascript'></script>";
     $retStr .= "<link rel='stylesheet' type='text/css' href='".$CFG->wwwroot."/blocks/online_users_map/style.css' />";
     $retStr .= "<div id='block_online_users_googlemap'></div>";
-    $retStr .= "<script type='text/javascript' src='".$CFG->wwwroot."/blocks/online_users_map/online_users_map.php' defer='defer'></script>";
+    $retStr .= "<script type='text/javascript' src='".$CFG->wwwroot."/blocks/online_users_map/online_users_map.php?id=".$COURSE->id."' defer='defer'></script>";
     return $retStr;
  }
 
@@ -22,8 +22,8 @@ include_once($CFG->dirroot.'/lib/datalib.php');
  * @return string HTML string to display OSM map
  */
  function get_html_osmmap(){
-    global $CFG;
-    $retStr = "<script type='text/javascript' src='".$CFG->wwwroot."/blocks/online_users_map/online_users_map_osm.php' defer='defer'></script>";
+    global $CFG,$COURSE;
+    $retStr = "<script type='text/javascript' src='".$CFG->wwwroot."/blocks/online_users_map/online_users_map_osm.php?id=".$COURSE->id."' defer='defer'></script>";
     $retStr .= "<script src='http://www.openlayers.org/api/OpenLayers.js'></script>";
     $retStr .= "<link rel='stylesheet' type='text/css' href='".$CFG->wwwroot."/blocks/online_users_map/style.css' />";
     $retStr .= "<script src='http://www.openstreetmap.org/openlayers/OpenStreetMap.js'></script>";

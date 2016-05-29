@@ -1,6 +1,7 @@
 <?php
 	include_once("../../config.php");
     include_once($CFG->dirroot.'/blocks/online_users_map/lib.php');
+    $id = required_param('id', PARAM_INT);
 ?>
 
 var map = null;
@@ -80,7 +81,7 @@ function loadMap(){
 
 
 function loadUsers(){
-	request = "<?php p($CFG->wwwroot); ?>/blocks/online_users_map/getusers.php?callback=loadUsersCallback";
+	request = "<?php p($CFG->wwwroot); ?>/blocks/online_users_map/getusers.php?id=<?php p($id); ?>&callback=loadUsersCallback";
 	aObj = new JSONscriptRequest(request);
 	aObj.buildScriptTag();
 	aObj.addScriptTag();
@@ -90,46 +91,80 @@ function loadUsersCallback(jData){
 	if(!jData){
 		return;
 	}
-	var users = jData;
-	for (i=0; i < users.length; i++){
-		createMarker(users[i]);
+	var marker = jData;
+	for (var i=0; i < marker.length; i++){
+		createMarker(marker[i]);
 	}
 }
 
-function createMarker(user){
-	if (user.lat != "" && user.lng != ""){
-		var point = new google.maps.LatLng(user.lat, user.lng);
-        if(user.online == "true"){
-		    createOnlineMarker(point,user);
+function createMarker(marker){
+	if (marker.lat != "" && marker.lng != ""){
+		var point = new google.maps.LatLng(marker.lat, marker.lng);
+        if(marker.usersoffline + marker.usersonline == 1){
+	        if(marker.usersonline == 1){
+			    createSingleMarker(point,marker,true);
+	        } else {
+	           createSingleMarker(point,marker,false);
+	        }
         } else {
-           createOfflineMarker(point,user);
+       		if(marker.usersonline == 0){
+			    createMultipleMarker(point,marker,false);
+	        } else {
+	           	createMultipleMarker(point,marker,true);
+	        }
         }
 	}
 }
 
-function createOnlineMarker(point,user){
 
-	var image = new google.maps.MarkerImage('<?php p($CFG->wwwroot);?>/blocks/online_users_map/images/online.png',
+function createSingleMarker(point,marker,online){
+
+	if(online){
+    	m_image = 'online.png';
+	} else {
+		m_image = 'offline.png';
+	}
+	
+	var image = new google.maps.MarkerImage('<?php p($CFG->wwwroot);?>/blocks/online_users_map/images/'+m_image,
 		      new google.maps.Size(22, 15),
 		      new google.maps.Point(0,0),
 		      new google.maps.Point(7, 15));
+		      
 	var shadow = new google.maps.MarkerImage('<?php p($CFG->wwwroot);?>/blocks/online_users_map/images/shadow.png',
 		      new google.maps.Size(22, 15),
 		      new google.maps.Point(0,0),
 		      new google.maps.Point(7, 15));
 
-	var marker = new google.maps.Marker({
+	if(marker.shownames){
+		var title = marker.city + ": " + marker.users[0].fullname;
+	} else {
+		var title = marker.city + ": 1 user";
+	}
+	
+	if(online){
+		title += " online";
+	} else {
+		title += " offline";
+	}
+	
+	var m = new google.maps.Marker({
 							position: point, 
 							map: map,
 							shadow: shadow,
 							icon: image,
-							title: user.fullname + " (online)"});
-							
+							title: title});
 }
 
 
-function createOfflineMarker(point,user){
-    var image = new google.maps.MarkerImage('<?php p($CFG->wwwroot);?>/blocks/online_users_map/images/offline.png',
+function createMultipleMarker(point, marker, online){
+
+	if(online){
+    	m_image = 'online.png';
+	} else {
+		m_image = 'offline.png';
+	}
+	
+	var image = new google.maps.MarkerImage('<?php p($CFG->wwwroot);?>/blocks/online_users_map/images/'+m_image,
 		      new google.maps.Size(22, 15),
 		      new google.maps.Point(0,0),
 		      new google.maps.Point(7, 15));
@@ -138,12 +173,42 @@ function createOfflineMarker(point,user){
 		      new google.maps.Point(0,0),
 		      new google.maps.Point(7, 15));
 
-	var marker = new google.maps.Marker({
+	if(marker.shownames){
+		var title = marker.city + ":<br/>";
+		users = marker.users;
+		for (var i=0; i < users.length; i++){
+			title += users[i].fullname + " ";
+			if(users[i].online == true){
+				title += "(online)<br/>";
+			} else {
+				title += "(offline)<br/>";
+			}
+		}
+		var infowindow = new google.maps.InfoWindow({
+		    content: title,
+		    maxWidth:200
+		});
+		
+		var m = new google.maps.Marker({
+					    	position: point, 
+							map: map,
+							shadow: shadow,
+							icon: image,
+							title: marker.city});
+
+		google.maps.event.addListener(m, 'click', function() {
+		  infowindow.open(map,m);
+		});
+
+	} else {
+		var title = marker.city + ":\n" + marker.usersonline + " users online\n" + marker.usersoffline + " users offline";
+		var m = new google.maps.Marker({
 							position: point, 
 							map: map,
 							shadow: shadow,
 							icon: image,
-							title: user.fullname});
+							title: title});
+	}						
 }
 
 loadMap();

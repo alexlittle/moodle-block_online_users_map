@@ -23,3 +23,4 @@ $plugin->cron = 3600;
 $plugin->release = 2011123000;
 $plugin->requires = 2011033006.00;
 $plugin->maturity = "Stable version";
+$plugin->component = 'block_online_users_map';

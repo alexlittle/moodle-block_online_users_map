@@ -1,6 +1,7 @@
 <?php
 	include_once("../../config.php");
     include_once($CFG->dirroot.'/blocks/online_users_map/lib.php');
+    $id = required_param('id', PARAM_INT);
 ?>
 
 var map = null;
@@ -104,7 +105,7 @@ function loadMap(){
 
 
 function loadUsers(){
-	request = "<?php p($CFG->wwwroot); ?>/blocks/online_users_map/getusers.php?callback=loadUsersCallback";
+	request = "<?php p($CFG->wwwroot); ?>/blocks/online_users_map/getusers.php?id=<?php p($id); ?>&callback=loadUsersCallback";
 	aObj = new JSONscriptRequest(request);
 	aObj.buildScriptTag();
 	aObj.addScriptTag();
@@ -114,32 +115,117 @@ function loadUsersCallback(jData){
 	if(!jData){
 		return;
 	}
-	var users = jData;
-	for (i=0; i < users.length; i++){
-		//create marker for each user
-		console.log(users[i]);
-		createMarker(users[i]);
+	var marker = jData;
+	for (var i=0; i < marker.length; i++){
+		createMarker(marker[i]);
 	}
 }
 
-function createMarker(user){
-	if (user.lat != "" && user.lng != ""){
-		var lonLat = new OpenLayers.LonLat(user.lng,user.lat).transform(map.displayProjection,  map.projection);
+function createMarker(marker){
+	if (marker.lat != "" && marker.lng != ""){
+	
+		if(marker.usersonline >= 1){
+        	var iconImg = '<?php p($CFG->wwwroot);?>/blocks/online_users_map/images/online_noshadow.png';
+        } else {
+        	var iconImg = '<?php p($CFG->wwwroot);?>/blocks/online_users_map/images/offline_noshadow.png';
+        }
+		var overlay = new OpenLayers.Layer.Vector('Overlay', {
+	        styleMap: new OpenLayers.StyleMap({
+	            externalGraphic: iconImg,
+	            graphicWidth: 13, graphicHeight: 15, graphicYOffset:-15,
+	            title: '${tooltip}'
+	        })
+	    });
+	
+		var myLocation = new OpenLayers.Geometry.Point(marker.lng, marker.lat).transform(map.displayProjection,  map.projection);
+
+    // We add the marker with a tooltip text to the overlay
+    overlay.addFeatures([
+        new OpenLayers.Feature.Vector(myLocation, {tooltip: 'OpenLayers'})
+    ]);
+
+    // A popup with some information about our location
+    var popup = new OpenLayers.Popup.FramedCloud("Popup", 
+        myLocation.getBounds().getCenterLonLat(), null,
+        '<a target="_blank" href="http://openlayers.org/">We</a> ' +
+        'could be here.<br>Or elsewhere.', null,
+        true // <-- true if we want a close (X) button, false otherwise
+    );
+
+    // Finally we create the map
+    /*map = new OpenLayers.Map({
+        div: "map", projection: "EPSG:3857",
+        layers: [new OpenLayers.Layer.OSM(), overlay],
+        center: myLocation.getBounds().getCenterLonLat(), zoom: 15
+    });*/
+    map.addLayer(overlay);
+    // and add the popup to it.
+    map.addPopup(popup);
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/*
+		var lonLat = new OpenLayers.LonLat(marker.lng,marker.lat).transform(map.displayProjection,  map.projection);
+		var myLocation = new OpenLayers.Geometry.Point(marker.lng,marker.lat).transform(map.displayProjection, map.projection);
 		var size = new OpenLayers.Size(13,15);
         var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
-        if(user.online == "true"){
+        if(marker.usersonline >= 1){
         	var icon = new OpenLayers.Icon('<?php p($CFG->wwwroot);?>/blocks/online_users_map/images/online_noshadow.png',size,offset);
         } else {
         	var icon = new OpenLayers.Icon('<?php p($CFG->wwwroot);?>/blocks/online_users_map/images/offline_noshadow.png',size,offset);
         }
         
-        mypopup = new OpenLayers.Popup("user",
-                   lonLat,
-                   new OpenLayers.Size(80,20),
-                   user.fullname,
-                   true);
+        if(marker.usersoffline + marker.usersonline == 1){
+        	if(marker.shownames){
+				var title = marker.city + ": " + marker.users[0].fullname;
+			} else {
+				var title = marker.city + ": 1 user";
+			}
+	
+			if(marker.usersonline == 1){
+				title += " online";
+			} else {
+				title += " offline";
+			}
+	        var mypopup = new OpenLayers.Popup("user",
+	                   lonLat,
+	                   new OpenLayers.Size(80,20),
+	                   title,
+	                   true);
+        } else {
+        	var mypopup = new OpenLayers.Popup.FramedCloud("Popup", 
+				        myLocation.getBounds().getCenterLonLat(), null,
+				        '<a target="_blank" href="http://openlayers.org/">We</a> ' +
+				        'could be here.<br>Or elsewhere.', null,
+				        true // <-- true if we want a close (X) button, false otherwise
+				    );
+        }
 
-        addMarker(lonLat, mypopup, icon.clone());
+        var feature = new OpenLayers.Feature(markers, lonLat); 
+    	feature.data.icon = icon;
+            
+    	var overlay = feature.createMarker();
+    	overlay.addFeatures([
+        		new OpenLayers.Feature.Vector(myLocation, {tooltip: 'OpenLayers'})
+	    	]);
+	    markers.addMarker(overlay);
+        //addMarker(lonLat, mypopup, icon.clone());
+        */
 	}
 }
 
@@ -163,7 +249,9 @@ function addMarker(ll, markerPopup, icon) {
         OpenLayers.Event.stop(evt);
     };
     marker.events.register("mousedown", feature, markerClick);
-
+	marker.addFeatures([
+        new OpenLayers.Feature.Vector(myLocation, {tooltip: 'OpenLayers'})
+    ]);
     markers.addMarker(marker);
 }
 
